@@ -1,0 +1,82 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# Sample movie data
+movies = {
+    "coolie": {"time": "10:00 AM", "seats": 50},
+    "idly kadai": {"time": "1:00 PM", "seats": 60},
+    "kantara": {"time": "6:00 PM", "seats": 40},
+    
+}
+
+# Booking function
+def book_ticket():
+    movie = movie_var.get()
+    name = name_entry.get()
+    seats_requested = seat_entry.get()
+
+    if not name or not seats_requested:
+        messagebox.showerror("Error", "Please enter all details.")
+        return
+
+    try:
+        seats_requested = int(seats_requested)
+    except ValueError:
+        messagebox.showerror("Error", "Please enter a valid number of seats.")
+        return
+
+    available = movies[movie]["seats"]
+    if seats_requested > available:
+        messagebox.showwarning("Unavailable", f"Only {available} seats available.")
+    else:
+        movies[movie]["seats"] -= seats_requested
+        messagebox.showinfo("Success", f"🎟️ {seats_requested} tickets booked for '{movie}'!\nEnjoy your show, {name}!")
+
+        seat_entry.delete(0, tk.END)
+        name_entry.delete(0, tk.END)
+        update_status()
+
+# Update seat availability
+def update_status():
+    status_text = "\n".join(
+        [f"{m} ({info['time']}): {info['seats']} seats left" for m, info in movies.items()]
+    )
+    status_label.config(text=status_text)
+
+# GUI Window
+root = tk.Tk()
+root.title("🎬 Movie Ticket Booking System")
+root.geometry("400x400")
+root.config(bg="#222")
+
+# Title
+tk.Label(root, text="Movie Ticket Booking", font=("Arial", 18, "bold"), fg="white", bg="#222").pack(pady=10)
+
+# Movie selection
+tk.Label(root, text="Select Movie:", fg="white", bg="#222", font=("Arial", 12)).pack()
+movie_var = tk.StringVar(value="Leo")
+movie_menu = tk.OptionMenu(root, movie_var, *movies.keys())
+movie_menu.pack(pady=5)
+
+# Name
+tk.Label(root, text="Your Name:", fg="white", bg="#222", font=("Arial", 12)).pack()
+name_entry = tk.Entry(root)
+name_entry.pack(pady=5)
+
+# Seats
+tk.Label(root, text="No. of Seats:", fg="white", bg="#222", font=("Arial", 12)).pack()
+seat_entry = tk.Entry(root)
+seat_entry.pack(pady=5)
+
+
+tk.Button(root, text="Book Now", command=book_ticket, bg="green", fg="white", font=("Arial", 12, "bold")).pack(pady=15)
+
+
+status_label = tk.Label(root, text="", fg="yellow", bg="#222", justify="left", font=("Consolas", 10))
+status_label.pack(pady=10)
+
+update_status()
+
+root.mainloop()
+
+
